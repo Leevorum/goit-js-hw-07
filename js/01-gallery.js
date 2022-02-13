@@ -28,28 +28,56 @@ const galleryMarkup = createGalleryMarkup(galleryItems);
 galleryDivElem.insertAdjacentHTML("beforeend", galleryMarkup);
 
 //Делегирование на div.gallery
-galleryDivElem.addEventListener("click", imageOnClick);
-// Модальное окно
-// Создаем функцию, при клике создает модальное окно
-function imageOnClick(evt) {
-  //Предотвращение перехода по ссылке
+galleryDivElem.addEventListener("click", onImgClick);
+
+const instance = basicLightbox.create(`<img class="gallery__image">`, {
+  onShow: () => {
+    window.addEventListener("keydown", onEscClick);
+  },
+
+  onClose: () => {
+    window.removeEventListener("keydown", onEscClick);
+  }
+});
+
+function onImgClick(evt) {
   evt.preventDefault();
-  // Открытие модалки только по картинке
   if (evt.target.nodeName !== "IMG") {
     return;
   }
-  // Создаем с помощью библиотеки модалку с нашей большой картинкой
-  const instance = basicLightbox.create(`
-    <img src="${evt.target.dataset.source}" width="800" height="600">
-`);
+  instance.element().querySelector(".gallery__image").src = evt.target.dataset.source;
+
   instance.show();
-  // Функция закрытия модалки по ESC
-  function closeModalEsc(evt) {
-    //   Лог для проверки что Listener снят
-    console.log(evt);
-    // При нажатии на ESC передаем функцию библиотеки, с анонимной функцией удаления листенера
-    if (evt.code === "Escape") instance.close(() => window.removeEventListener("keydown", closeModalEsc));
-  }
-  // При создании модалки добавляем листенер
-  window.addEventListener("keydown", closeModalEsc);
 }
+
+function onEscClick(evt) {
+  if (evt.key === "Escape") {
+    instance.close();
+    return;
+  }
+}
+// Модальное окно
+// Создаем функцию, при клике создает модальное окно
+// суперзамудреное решение)
+// function imageOnClick(evt) {
+//   //Предотвращение перехода по ссылке
+//   evt.preventDefault();
+//   // Открытие модалки только по картинке
+//   if (evt.target.nodeName !== "IMG") {
+//     return;
+//   }
+//   // Создаем с помощью библиотеки модалку с нашей большой картинкой
+//   const instance = basicLightbox.create(`
+//     <img src="${evt.target.dataset.source}" width="800" height="600">
+// `);
+//   instance.show();
+//   // Функция закрытия модалки по ESC
+//   function closeModalEsc(evt) {
+//     //   Лог для проверки что Listener снят
+//     console.log(evt);
+//     // При нажатии на ESC передаем функцию библиотеки, с анонимной функцией удаления листенера
+//     if (evt.code === "Escape") instance.close(() => window.removeEventListener("keydown", closeModalEsc));
+//   }
+//   // При создании модалки добавляем листенер
+//   window.addEventListener("keydown", closeModalEsc);
+// }
